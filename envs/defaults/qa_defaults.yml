@@ -1,0 +1,10 @@
+---
+qa_template_index:
+  - src: "qa/all.yml.j2"
+    dest: "{{ generated_vars_path }}/{{ env_name }}/group_vars/all.yml"
+  - src: "qa/hosts.j2"
+    dest: "{{ generated_vars_path }}/{{ env_name }}/hosts"
+  - src: "qa/vms.yml.j2"
+    dest: "{{ generated_vars_path }}/{{ env_name }}/group_vars/vms.yml"
+  - src: "qa/vault.yml.j2"
+    dest: "{{ generated_vars_path }}/{{ env_name }}/group_vars/vault.yml"

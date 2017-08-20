@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+[local]
+127.0.0.1   ansible_connection=local ansible_python_interpreter=python
+
+[vms]
+127.0.0.1   ansible_connection=local ansible_python_interpreter=python
+
+[vault:children]
+local
+vms

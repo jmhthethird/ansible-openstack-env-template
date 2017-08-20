@@ -1,0 +1,86 @@
+#!/bin/bash
+
+env_type=""
+env_name=""
+generated_vars_path="./generated_vars"
+vault_pass_file="~/.openstack-tenant-generator.txt"
+
+usage() {
+cat << EOF
+
+This script generates the vars needed by ansible-openstack-env-creator to create the templated environment.
+
+USAGE: $0 -e ENV_NAME -t {qa|staging|production}
+
+REQUIRED FLAGS:
+  -e      environment
+
+  OPTIONAL FLAGS:
+  -t {qa|staging|production} Env type
+  -o                         path to output the generated vars (defaults to ./generated_vars)
+  -h                         Show this message
+EOF
+}
+
+error() {
+  echo -e "\nERROR:\t$1\n"
+  exit
+}
+
+validate_env() {
+  validate_env_type
+  test -f envs/manifests/$env_name.yml || error "Manifest: envs/manifests/$env_name.yml doesn't exist"
+}
+
+validate_env_type() {
+  if [ -z $env_type ]; then
+    env_type=$env_name
+  fi
+
+  case "$env_type" in
+    "qa"*)
+      env_type="qa"
+      ;;
+    "prod"*)
+      env_type="production"
+      ;;
+    "staging"*)
+      env_type="staging"
+      ;;
+    *)
+      echo "Error: Invalid Environment Type Specified: '$env_type'"
+      usage
+      exit 1
+      ;;
+  esac
+}
+
+while getopts ":h:e:o:t:" OPT; do
+  case "${OPT}" in
+  h)
+    usage
+    exit 1
+    ;;
+  t)
+    env_type=$OPTARG
+    ;;
+  e)
+    env_name=$OPTARG
+    ;;
+  o)
+    generated_vars_path=${OPTARG%/}
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+  esac
+done
+
+if [ -z $env_name ] && [ -z $env_type ]; then
+  usage
+else
+  validate_env
+  echo -e "\nGenerating Vars for $env_name:\n\tPlaybook Path: $(pwd)\n\tManifest: envs/manifests/$env_name.yml\n\tPlaybook: ./site.yml\n\tWith Args: --tags $env_type --extra-vars "env_name=$env_name generated_vars_path=$generated_vars_path" --vault-password-file $vault_pass_file -vv \n\tOutputting Generated Vars to: $generated_vars_path/$env_name/group_vars\n"
+  ansible-playbook -i envs/hosts site.yml --tags $env_type --extra-vars "env_name=$env_name generated_vars_path=$generated_vars_path" --vault-password-file $vault_pass_file -vv
+fi

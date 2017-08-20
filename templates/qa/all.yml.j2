@@ -1,0 +1,112 @@
+---
+# {{ ansible_managed }}
+
+env:
+  name: "{{ env_name }}" # Environment name - must be unique per environment provisioned.
+  keyname: "bps-site-key-{{ env_name }}" # Environment key name - must be unique per environment provisioned.
+
+acl_networks:
+  public:
+    - "0.0.0.0/0"
+  internal:
+    - "192.168.0.0/22"
+
+openstack:
+  domain_id: "{{ api.domain_id }}"
+  api:
+    fqdn: "{{ api.fqdn }}"
+    port: "{{ api.port }}"
+    protocol: "{{ api.protocol }}"
+    version: "{{ api.version }}"
+  admin:
+    name: "{{ admin.name }}"
+    password: {{ '"{{ openstack_admin_password }}"' }}
+    project: "demo"
+    role: "cloud_admin"
+  ssl: ~
+  default_image:
+    name: "{{ default_image.name }}"
+    uuid: "{{ default_image.uuid }}"
+  internal_network:
+    name: "{{ default_internal_network.name }}"
+    uuid: "{{ default_internal_network.uuid }}"
+  external_network:
+    name:
+    uuid:
+  flavor:
+    tiny: 1
+    small: 2
+    medium: 3
+    large: 4
+    xlarge: 5
+  keypairs:
+    name: {{ '"{{ env.name }}-key"' }}
+    pub_key: {{ '"{{ project_ssh_public_key | default('')}}"' }}
+  project:
+    name: {{ '"{{ env.name }}"' }}
+    description: {{ '"{{ env.name }} project"' }}
+    user_role_list:
+      - "project_admin"
+      - "cloud_admin"
+  quotas:
+    instances: 20
+    cores: 150
+    ram: 300000
+    security_groups: 500
+    security_group_rules: 1000
+
+  security_groups:
+    - name: &icmp icmp
+      description: "icmp"
+    - name: &public_services public_services
+      description: "public bps services"
+    - name: &internal internal
+      description: "internal"
+  security_group_rules:
+    - name: *icmp
+      protocol: icmp
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *public_services
+      protocol: tcp
+      from_port: 80
+      to_port: 80
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *public_services
+      protocol: tcp
+      from_port: 443
+      to_port: 443
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *public_services
+      protocol: tcp
+      from_port: 4560
+      to_port: 4560
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *public_services
+      protocol: tcp
+      from_port: 5280
+      to_port: 5280
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *public_services
+      protocol: tcp
+      from_port: 5281
+      to_port: 5281
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *public_services
+      protocol: tcp
+      from_port: 5222
+      to_port: 5222
+      networks: {{ '"{{ acl_networks.public }}"' }}
+    - name: *internal
+      protocol: udp
+      from_port: 53
+      to_port: 53
+      networks: {{ '"{{ acl_networks.internal }}"' }}
+    - name: *internal
+      protocol: tcp
+      from_port: 22
+      to_port: 22
+      networks: {{ '"{{ acl_networks.internal }}"' }}
+
+  security_source_group_rules:
+    - name: *internal
+      remote_group: *internal

@@ -1,0 +1,45 @@
+---
+# {{ ansible_managed }}
+
+vms:
+  - name: {{ '"host01.{{ env.name }}"' }}
+    project_name: {{ '"{{ openstack.project.name }}"' }}
+    flavor_id: {{ '"{{ openstack.flavor.medium }}"' }}
+    image_id: {{ '"{{ openstack.default_image.uuid }}"' }}
+    net_id: {{ '"{{ openstack.internal_network.uuid }}"' }}
+    internal_net_name: {{ '"{{ openstack.internal_network.name }}"' }}
+    external_net_name: {{ '"{{ openstack.external_network.name }}"' }}
+    auto_floating_external_ip: no
+    availability_zone: ~
+    key_name: {{ '"{{ openstack.keypairs.name }}"' }}
+    security_groups: "default"
+    meta:
+      groups: "region01"
+
+  - name: {{ '"host02.{{ env.name }}"' }}
+    project_name: {{ '"{{ openstack.project.name }}"' }}
+    flavor_id: {{ '"{{ openstack.flavor.medium }}"' }}
+    image_id: {{ '"{{ openstack.default_image.uuid }}"' }}
+    net_id: {{ '"{{ openstack.internal_network.uuid }}"' }}
+    internal_net_name: {{ '"{{ openstack.internal_network.name }}"' }}
+    external_net_name: {{ '"{{ openstack.external_network.name }}"' }}
+    auto_floating_external_ip: yes
+    availability_zone: ~
+    key_name: {{ '"{{ openstack.keypairs.name }}"' }}
+    security_groups: "default,icmp,internal,public_services"
+    meta:
+      groups: "region02"
+
+  - name: {{ '"host03.{{ env.name }}"' }}
+    project_name: {{ '"{{ openstack.project.name }}"' }}
+    flavor_id: {{ '"{{ openstack.flavor.medium }}"' }}
+    image_id: {{ '"{{ openstack.default_image.uuid }}"' }}
+    net_id: {{ '"{{ openstack.internal_network.uuid }}"' }}
+    internal_net_name: {{ '"{{ openstack.internal_network.name }}"' }}
+    external_net_name: {{ '"{{ openstack.external_network.name }}"' }}
+    auto_floating_external_ip: no
+    availability_zone: ~
+    key_name: {{ '"{{ openstack.keypairs.name }}"' }}
+    security_groups: "default,icmp,internal"
+    meta:
+      groups: "region1"

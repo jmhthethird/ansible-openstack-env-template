@@ -1,0 +1,27 @@
+---
+- name: ensure output path exists
+  hosts: generator
+  tasks:
+    - file:
+        path: "{{ generated_vars_path }}/{{ env_name }}/group_vars"
+        recurse: true
+        state: directory
+  tags: [ qa, staging, production ]
+
+- name: generate qa vars
+  hosts: generator
+  vars_files:
+    - "envs/defaults/qa_defaults.yml"
+    - "envs/defaults/qa_defaults.vault.yml"
+    - "envs/manifests/{{ env_name }}.yml"
+  tasks:
+    - name: generate group_vars
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      when: item.generate|default(true)
+      with_items: "{{ qa_template_index }}"
+
+    - name: encrypt vault file
+      shell: ansible-vault --vault-password-file ~/.openstack-tenant-generator.txt encrypt "{{ generated_vars_path }}/{{ env_name }}/group_vars/vault.yml"
+  tags: [ qa ]

@@ -1,0 +1,20 @@
+---
+env_name: qa01 # Should match the file name for easy referencing
+
+api:
+  domain_id: "Default" 
+  fqdn: "your-openstack-url.com"
+  port: "5000"
+  protocol: "https"
+  version: "v3"
+
+admin:
+  name: "admin"
+
+default_image:
+  name: "ubuntu-14.04"
+  uuid: "image uuid goes here"
+
+default_internal_network:
+    name: "internal"
+    uuid: "network uuid goes here"
